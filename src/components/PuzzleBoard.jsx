@@ -82,14 +82,15 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
   }, [])
 
   // Calculate grid column class based on gridSize
-  const getGridColClass = () => {
-    const colMap = {
-      3: 'col-4',
-      4: 'col-3',
-      5: 'col-2'
-    }
-    return colMap[gridSize] || 'col-3'
+  // Calculate grid column class based on gridSize
+const getGridColClass = () => {
+  const colMap = {
+    3: 'col-6 col-sm-4 col-md-4', // 2 kolòn sou mobil, 3 sou tablet/desktop
+    4: 'col-6 col-sm-3 col-md-3', // 2 kolòn sou mobil, 4 sou tablet/desktop
+    5: 'col-6 col-sm-2 col-md-2'  // 2 kolòn sou mobil, 5 sou tablet/desktop
   }
+  return colMap[gridSize] || 'col-6 col-sm-3'
+}
 
   return (
     <motion.div
