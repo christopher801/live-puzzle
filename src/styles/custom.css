@@ -5,26 +5,105 @@ body {
   padding: 0;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* Smooth transitions */
+/* Puzzle Grid Styles */
+.puzzle-grid {
+  margin: 0 -0.25rem !important;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.puzzle-grid > [class*="col-"] {
+  padding: 0.25rem;
+  display: flex;
+}
+
+/* Bootstrap kolòn fòse */
+.col-2, .col-3, .col-4, .col-6 {
+  flex: 0 0 auto;
+}
+
+.col-4 {
+  width: 33.333333%;
+}
+
+.col-3 {
+  width: 25%;
+}
+
+.col-2 {
+  width: 20%; /* Sa a 5 kolòn */
+}
+
+.col-6 {
+  width: 50%;
+}
+
+/* Pou 5x5 grid, bezwen yon ti ajustman */
+.col-5th {
+  width: 20%;
+}
+
+/* Puzzle Piece Styles */
 .puzzle-piece {
+  width: 100%;
+  aspect-ratio: 1/1;
   transition: all 0.2s ease;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: grab;
+  touch-action: none; /* Anpeche scroll pandan w ap trennen */
+  position: relative;
 }
 
 .puzzle-piece:active {
-  cursor: grabbing !important;
+  cursor: grabbing;
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.puzzle-piece.dragging {
+  opacity: 0.8;
+  transform: scale(1.05) rotate(1deg);
+  z-index: 1000;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+}
+
+/* Card Styles */
+.puzzle-piece .card {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  border-width: 2px;
+}
+
+.puzzle-piece .card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+}
+
+/* Puzzle piece image */
+.puzzle-piece .card div[style*="background-image"] {
+  width: 100%;
+  height: 100%;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 /* Glow effect for dragged items */
 .dragging-active .puzzle-piece:not(.dragging) {
   opacity: 0.7;
-  filter: blur(1px);
+  filter: blur(0.5px);
 }
 
-/* Responsive grid adjustments */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .display-4 {
     font-size: 2rem;
@@ -32,6 +111,36 @@ body {
   
   .lead {
     font-size: 1rem;
+  }
+  
+  /* Pi gwo espas pou touch */
+  .puzzle-grid {
+    margin: 0 -0.35rem !important;
+  }
+  
+  .puzzle-grid > [class*="col-"] {
+    padding: 0.35rem;
+  }
+  
+  .puzzle-piece .card {
+    border-radius: 6px;
+  }
+  
+  /* Pi gwo bouton */
+  .btn {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* Amelyorasyon pou tablèt */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .puzzle-grid {
+    margin: 0 -0.3rem !important;
+  }
+  
+  .puzzle-grid > [class*="col-"] {
+    padding: 0.3rem;
   }
 }
 
@@ -54,7 +163,7 @@ body {
   background: #6a6a8a;
 }
 
-/* Animation for win message */
+/* Win message animation */
 @keyframes slideIn {
   from {
     transform: translateY(-100%);
@@ -73,6 +182,7 @@ body {
 /* Card hover effects */
 .card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-width: 2px;
 }
 
 .card:hover {
@@ -80,18 +190,12 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Puzzle board grid */
-.row.g-2 {
-  margin: -0.25rem;
-}
-
-.row.g-2 > [class*="col-"] {
-  padding: 0.25rem;
-}
-
-/* Timer badge animation */
+/* Timer badge */
 .badge-info {
   transition: all 0.3s ease;
+  background-color: #17a2b8;
+  color: white;
+  font-weight: 500;
 }
 
 .badge-info:hover {
@@ -101,22 +205,6 @@ body {
 /* Loading spinner */
 .spinner-border {
   vertical-align: middle;
-}
-
-/* Responsive video container */
-.webcam-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 100%; /* 1:1 Aspect Ratio */
-}
-
-.webcam-container video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 /* Gradient backgrounds */
@@ -129,6 +217,8 @@ body {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
+  font-weight: 500;
+  border-width: 2px;
 }
 
 .btn::after {
@@ -162,64 +252,118 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}/* Korije display grid la */
-.row.g-2 {
-  margin: -0.25rem;
-  display: flex;
-  flex-wrap: wrap;
 }
 
-.row.g-2 > [class*="col-"] {
-  padding: 0.25rem;
-  flex: 0 0 auto;
-}
-
-/* Fòse kolòn yo pran bon largeur */
-.col-6 {
-  flex: 0 0 auto;
-  width: 50%;
-}
-
-@media (min-width: 576px) {
-  .col-sm-4 {
-    flex: 0 0 auto;
-    width: 33.333333%;
+/* Mobile specific improvements */
+@media (max-width: 576px) {
+  /* Kontwòl yo an kolòn */
+  .d-flex.gap-3 {
+    flex-direction: column;
+    width: 100%;
   }
-  .col-sm-3 {
-    flex: 0 0 auto;
-    width: 25%;
+  
+  .d-flex.gap-3 .btn {
+    width: 100%;
+    margin: 0.25rem 0;
   }
-  .col-sm-2 {
-    flex: 0 0 auto;
-    width: 20%;
+  
+  /* Tit pi piti */
+  h1.display-4 {
+    font-size: 1.8rem;
   }
-}
-
-@media (min-width: 768px) {
-  .col-md-4 {
-    flex: 0 0 auto;
-    width: 33.333333%;
+  
+  /* Badge timer */
+  .badge.p-3 {
+    padding: 0.75rem !important;
+    font-size: 1rem;
   }
-  .col-md-3 {
-    flex: 0 0 auto;
-    width: 25%;
+  
+  /* Button group */
+  .btn-group {
+    width: 100%;
   }
-  .col-md-2 {
-    flex: 0 0 auto;
-    width: 20%;
+  
+  .btn-group .btn {
+    flex: 1;
+  }
+  
+  /* Puzzle board padding */
+  .card-body {
+    padding: 0.75rem !important;
   }
 }
 
-/* Amelyorasyon vizyèl */
+/* Efe lè moso nan bon plas */
+.piece-correct {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
+}
+
+/* Anpeche imaj la pran drag */
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* Touch devices specific */
+@media (hover: none) and (pointer: coarse) {
+  .puzzle-piece {
+    cursor: default;
+  }
+  
+  .btn {
+    cursor: default;
+  }
+  
+  /* Ogmante espas pou touch */
+  .puzzle-piece .card {
+    border-width: 3px;
+  }
+}
+
+/* Drag overlay */
+.drag-overlay {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+/* Animation for new pieces */
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .puzzle-piece {
-  width: 100%;
-  aspect-ratio: 1/1;
-  margin-bottom: 0;
+  animation: appear 0.3s ease-out;
 }
 
-/* Efe hover */
-.puzzle-piece:hover {
-  transform: scale(1.02);
-  transition: transform 0.2s ease;
-  z-index: 10;
+/* Success border */
+.border-success {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 20px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* Checkmark overlay */
+.position-absolute.bg-success.bg-opacity-25 {
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }

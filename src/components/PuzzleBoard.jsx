@@ -6,12 +6,12 @@ import {
   PointerSensor,
   TouchSensor,
   useSensor,
-  useSensors
+  useSensors,
+  DragOverlay
 } from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   rectSortingStrategy
 } from '@dnd-kit/sortable'
 import { motion } from 'framer-motion'
@@ -21,19 +21,21 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
   const [items, setItems] = useState(pieces)
   const [activeId, setActiveId] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [containerWidth, setContainerWidth] = useState('100%')
 
-  // Sensors konfigire pou touch ak sourit
+  // Sensors konfigire espesyalman pou touch
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 150, // Reta anvan aktive pou pa konfli ak scroll
+        delay: 100,
         tolerance: 5,
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 150,
+        delay: 100,
         tolerance: 5,
+        touchActivation: 'onTouchStart',
       },
     })
   )
@@ -54,6 +56,21 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
       }
     }
   }, [items, onWin, isSolved])
+
+  // Calculate grid column class based on gridSize
+  const getGridColClass = () => {
+    // Nou itilize sistèm 12 kolòn Bootstrap
+    switch(gridSize) {
+      case 3:
+        return 'col-4' // 12/3 = 4, 3 kolòn
+      case 4:
+        return 'col-3' // 12/4 = 3, 4 kolòn
+      case 5:
+        return 'col-2 col-5th' // 12/5 = 2.4, bezwen CSS espesyal
+      default:
+        return 'col-3'
+    }
+  }
 
   const handleDragStart = useCallback((event) => {
     setActiveId(event.active.id)
@@ -81,22 +98,15 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
     setIsDragging(false)
   }, [])
 
-  // Calculate grid column class based on gridSize
-  // Calculate grid column class based on gridSize
-const getGridColClass = () => {
-  const colMap = {
-    3: 'col-6 col-sm-4 col-md-4', // 2 kolòn sou mobil, 3 sou tablet/desktop
-    4: 'col-6 col-sm-3 col-md-3', // 2 kolòn sou mobil, 4 sou tablet/desktop
-    5: 'col-6 col-sm-2 col-md-2'  // 2 kolòn sou mobil, 5 sou tablet/desktop
-  }
-  return colMap[gridSize] || 'col-6 col-sm-3'
-}
+  // Jwenn moso aktif la pou overlay
+  const activePiece = items.find(item => item.id === activeId)
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
+      style={{ width: '100%' }}
     >
       <Card className={`bg-dark text-light border-secondary shadow-lg ${isSolved ? 'border-success' : ''}`}>
         <Card.Header className={`border-secondary text-center py-3 ${isSolved ? 'bg-success bg-opacity-25' : ''}`}>
@@ -110,7 +120,7 @@ const getGridColClass = () => {
           )}
         </Card.Header>
         
-        <Card.Body className="p-4">
+        <Card.Body className="p-3 p-md-4">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -122,9 +132,13 @@ const getGridColClass = () => {
               items={items.map(item => item.id)}
               strategy={rectSortingStrategy}
             >
-              <Row className={`g-2 ${isDragging ? 'dragging-active' : ''}`}>
+              <Row className="g-2 puzzle-grid">
                 {items.map((piece) => (
-                  <Col key={piece.id} className={getGridColClass()}>
+                  <Col 
+                    key={piece.id} 
+                    className={`${getGridColClass()} d-flex`}
+                    style={{ minHeight: '80px' }}
+                  >
                     <PuzzlePiece
                       piece={piece}
                       isActive={activeId === piece.id}
@@ -135,6 +149,26 @@ const getGridColClass = () => {
                 ))}
               </Row>
             </SortableContext>
+            
+            {/* DragOverlay pou montre moso pandan w ap trennen */}
+            <DragOverlay>
+              {activeId && activePiece ? (
+                <div style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  opacity: 0.8,
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
+                }}>
+                  <PuzzlePiece
+                    piece={activePiece}
+                    isActive={true}
+                    isDragging={true}
+                    isSolved={false}
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
         </Card.Body>
 
