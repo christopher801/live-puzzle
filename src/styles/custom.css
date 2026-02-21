@@ -162,4 +162,64 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}/* Korije display grid la */
+.row.g-2 {
+  margin: -0.25rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.row.g-2 > [class*="col-"] {
+  padding: 0.25rem;
+  flex: 0 0 auto;
+}
+
+/* Fòse kolòn yo pran bon largeur */
+.col-6 {
+  flex: 0 0 auto;
+  width: 50%;
+}
+
+@media (min-width: 576px) {
+  .col-sm-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
+  }
+  .col-sm-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+  .col-sm-2 {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+}
+
+@media (min-width: 768px) {
+  .col-md-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
+  }
+  .col-md-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+  .col-md-2 {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+}
+
+/* Amelyorasyon vizyèl */
+.puzzle-piece {
+  width: 100%;
+  aspect-ratio: 1/1;
+  margin-bottom: 0;
+}
+
+/* Efe hover */
+.puzzle-piece:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+  z-index: 10;
 }
