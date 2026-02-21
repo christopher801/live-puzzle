@@ -3,15 +3,17 @@ import { Card, Row, Col } from 'react-bootstrap'
 import {
   DndContext,
   closestCenter,
+  KeyboardSensor,
   PointerSensor,
-  TouchSensor,
   useSensor,
   useSensors,
-  DragOverlay
+  DragEndEvent,
+  DragStartEvent
 } from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
+  sortableKeyboardCoordinates,
   rectSortingStrategy
 } from '@dnd-kit/sortable'
 import { motion } from 'framer-motion'
@@ -21,22 +23,15 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
   const [items, setItems] = useState(pieces)
   const [activeId, setActiveId] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [containerWidth, setContainerWidth] = useState('100%')
 
-  // Sensors konfigire espesyalman pou touch
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 100,
-        tolerance: 5,
+        distance: 8,
       },
     }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 100,
-        tolerance: 5,
-        touchActivation: 'onTouchStart',
-      },
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
     })
   )
 
@@ -44,7 +39,7 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
     setItems(pieces)
   }, [pieces])
 
-  // Tcheke si puzzle a rezoud
+  // Check win condition
   useEffect(() => {
     if (items.length > 0 && !isSolved) {
       const isPuzzleSolved = items.every(
@@ -56,21 +51,6 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
       }
     }
   }, [items, onWin, isSolved])
-
-  // Calculate grid column class based on gridSize
-  const getGridColClass = () => {
-    // Nou itilize sistèm 12 kolòn Bootstrap
-    switch(gridSize) {
-      case 3:
-        return 'col-4' // 12/3 = 4, 3 kolòn
-      case 4:
-        return 'col-3' // 12/4 = 3, 4 kolòn
-      case 5:
-        return 'col-2 col-5th' // 12/5 = 2.4, bezwen CSS espesyal
-      default:
-        return 'col-3'
-    }
-  }
 
   const handleDragStart = useCallback((event) => {
     setActiveId(event.active.id)
@@ -98,15 +78,21 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
     setIsDragging(false)
   }, [])
 
-  // Jwenn moso aktif la pou overlay
-  const activePiece = items.find(item => item.id === activeId)
+  // Calculate grid column class based on gridSize
+  const getGridColClass = () => {
+    const colMap = {
+      3: 'col-4',
+      4: 'col-3',
+      5: 'col-2'
+    }
+    return colMap[gridSize] || 'col-3'
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      style={{ width: '100%' }}
     >
       <Card className={`bg-dark text-light border-secondary shadow-lg ${isSolved ? 'border-success' : ''}`}>
         <Card.Header className={`border-secondary text-center py-3 ${isSolved ? 'bg-success bg-opacity-25' : ''}`}>
@@ -120,7 +106,7 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
           )}
         </Card.Header>
         
-        <Card.Body className="p-3 p-md-4">
+        <Card.Body className="p-4">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -132,13 +118,9 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
               items={items.map(item => item.id)}
               strategy={rectSortingStrategy}
             >
-              <Row className="g-2 puzzle-grid">
+              <Row className={`g-2 ${isDragging ? 'dragging-active' : ''}`}>
                 {items.map((piece) => (
-                  <Col 
-                    key={piece.id} 
-                    className={`${getGridColClass()} d-flex`}
-                    style={{ minHeight: '80px' }}
-                  >
+                  <Col key={piece.id} className={getGridColClass()}>
                     <PuzzlePiece
                       piece={piece}
                       isActive={activeId === piece.id}
@@ -149,26 +131,6 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
                 ))}
               </Row>
             </SortableContext>
-            
-            {/* DragOverlay pou montre moso pandan w ap trennen */}
-            <DragOverlay>
-              {activeId && activePiece ? (
-                <div style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  opacity: 0.8,
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
-                }}>
-                  <PuzzlePiece
-                    piece={activePiece}
-                    isActive={true}
-                    isDragging={true}
-                    isSolved={false}
-                  />
-                </div>
-              ) : null}
-            </DragOverlay>
           </DndContext>
         </Card.Body>
 
