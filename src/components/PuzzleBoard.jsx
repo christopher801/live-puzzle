@@ -3,8 +3,8 @@ import { Card, Row, Col } from 'react-bootstrap'
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors
 } from '@dnd-kit/core'
@@ -22,14 +22,19 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
   const [activeId, setActiveId] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
 
+  // Sensors konfigire pou touch ak sourit
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        delay: 150, // Reta anvan aktive pou pa konfli ak scroll
+        tolerance: 5,
       },
     }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 5,
+      },
     })
   )
 
@@ -37,7 +42,7 @@ const PuzzleBoard = ({ pieces, gridSize, onPiecesChange, onWin, isSolved }) => {
     setItems(pieces)
   }, [pieces])
 
-  // Check win condition
+  // Tcheke si puzzle a rezoud
   useEffect(() => {
     if (items.length > 0 && !isSolved) {
       const isPuzzleSolved = items.every(

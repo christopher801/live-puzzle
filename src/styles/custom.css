@@ -12,6 +12,7 @@ body {
   transition: all 0.2s ease;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .puzzle-piece:active {
@@ -32,6 +33,40 @@ body {
   
   .lead {
     font-size: 1rem;
+  }
+  
+  /* Amelyorasyon pou touch sou mobil */
+  .puzzle-piece {
+    touch-action: none; /* Anpeche scroll pandan w ap trennen */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .puzzle-piece:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  
+  /* Ogmante espas ant moso pou fasilite touch */
+  .g-2 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Pi gwo bouton pou mobil */
+  .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  /* Ajiste card padding */
+  .card-body {
+    padding: 1rem !important;
+  }
+}
+
+/* Amelyorasyon pou tablèt */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .g-2 {
+    gap: 0.5rem !important;
   }
 }
 
@@ -161,5 +196,71 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Amelyorasyon espesyal pou mobil */
+@media (max-width: 576px) {
+  /* Kontwòl yo anba lòt la */
+  .d-flex.gap-3 {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .d-flex.gap-3 .btn {
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+  
+  /* Tit pi piti */
+  h1.display-4 {
+    font-size: 1.8rem;
+  }
+  
+  /* Badge timer */
+  .badge.p-3 {
+    padding: 0.75rem !important;
+    font-size: 1rem;
+  }
+  
+  /* Button group */
+  .btn-group {
+    width: 100%;
+  }
+  
+  .btn-group .btn {
+    flex: 1;
+  }
+}
+
+/* Animasyon lè w ap trennen */
+.puzzle-piece.dragging {
+  opacity: 0.8;
+  transform: scale(1.05);
+  z-index: 1000;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Efe lè moso nan bon plas */
+.piece-correct {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+/* Anpeche imaj la pran drag */
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* Amelyore aksè sou mobil */
+@media (hover: none) and (pointer: coarse) {
+  /* Pou aparèy touch sèlman */
+  .puzzle-piece {
+    cursor: default;
+  }
+  
+  .btn {
+    cursor: default;
   }
 }
